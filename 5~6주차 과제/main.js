@@ -39,38 +39,6 @@ terrarium.addEventListener('drop', function(e) {
 
     // 드롭 후에도 다시 드래그/더블클릭 가능하게 재설정
     dragElement(plant);
-
-    terrarium.addEventListener('drop', function(e) {
-    e.preventDefault();
-
-    const plantId = e.dataTransfer.getData('text/plain');
-    const plant = document.getElementById(plantId);
-
-    const terrariumRect = terrarium.getBoundingClientRect();
-    const jarWalls = document.querySelector('.jar-walls');
-    const jarRect = jarWalls.getBoundingClientRect();
-
-    const offsetX = e.clientX - terrariumRect.left;
-    const offsetY = e.clientY - terrariumRect.top;
-
-    // 병 내부 영역만 허용
-    if (
-        e.clientX < jarRect.left || e.clientX > jarRect.right ||
-        e.clientY < jarRect.top || e.clientY > jarRect.bottom
-    ) {
-        alert("병 안쪽에만 식물을 놓을 수 있어요 🌱");
-        return;
-    }
-
-    plant.style.position = 'absolute';
-    plant.style.left = `${offsetX}px`;
-    plant.style.top = `${offsetY}px`;
-    plant.style.zIndex = ++topZIndex;
-
-    terrarium.appendChild(plant);
-
-    dragElement(plant);
-});
 });
 
 
