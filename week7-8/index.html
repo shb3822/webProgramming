@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Typing game</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Typing game!</h1>
+  <p>Practice your typing skills with a quote from Sherlock Holmes. Click <strong>start</strong> to begin!</p>
+  <p id="quote"></p>
+
+  <p id="message"></p>
+  <p id="best-score"><i class="fa-solid fa-trophy"></i> 최고 기록: 아직 없음</p>
+
+  <!-- ✅ 입력창과 버튼 묶음 -->
+  <div id="game-controls" class="hidden">
+    <input type="text" aria-label="current word" id="typed-value" />
+    
+    <!-- ✅ 타이머에 아이콘 추가 -->
+    <p id="timer" class="hidden"><i class="fa-regular fa-clock"></i> 현재 시간: 0.00초</p>
+    
+    <button type="button" id="start" aria-label="게임 시작">
+      <i class="fa-solid fa-play"></i> Start
+    </button>
+  </div>
+
+  <!-- ✅ 모달창 -->
+  <div id="result-modal" class="modal hidden">
+    <div class="modal-content">
+      <p id="modal-message"><i class="fa-solid fa-flag-checkered"></i> 게임 결과가 여기에 표시됩니다.</p>
+      <div class="modal-buttons">
+        <button id="restart-game" aria-label="다시 시작">
+          <i class="fa-solid fa-rotate-right"></i> 다시 시작
+        </button>
+        <button id="close-modal" aria-label="닫기">
+          <i class="fa-solid fa-xmark"></i> 닫기
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
