@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Carbon Trigger",
+  "version": "1.0",
+  "description": "Personal Carbon Usage Tracker",
+  "action": {
+    "default_popup": "dist/index.html"
+  },
+  "permissions": ["storage"]
+}
