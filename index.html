@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Space Game</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: sans-serif;
+      color: white;
+    }
+    #gameContainer {
+      position: relative;
+      display: inline-block;
+    }
+    #myCanvas {
+      border: 1px solid #d3d3d3;
+      background: black;
+    }
+    .screen-overlay {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      gap: 16px;
+      text-align: center;
+      box-sizing: border-box;
+      padding: 16px;
+    }
+    .screen-overlay h1 {
+      margin: 0;
+    }
+    .screen-overlay button {
+      padding: 10px 24px;
+      font-size: 18px;
+      cursor: pointer;
+      margin: 4px;
+    }
+    .difficulty-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* 메인 메뉴용 */
+    #mainMenu h2 {
+      margin-top: 0;
+      font-size: 14px;
+      color: #cccccc;
+    }
+
+    /* 기체 선택 화면 */
+    .ship-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      max-width: 900px;
+    }
+    .ship-card {
+      border: 2px solid #888;
+      padding: 12px;
+      width: 260px;
+      box-sizing: border-box;
+      background: rgba(0,0,0,0.6);
+    }
+    .ship-card.selected {
+      border-color: #00ffcc;
+      box-shadow: 0 0 10px #00ffcc;
+    }
+    .ship-preview {
+      width: 100%;
+      height: 80px;
+      margin-bottom: 8px;
+      background: #111;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ship-preview img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+    .ship-name {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .ship-stats {
+      font-size: 13px;
+      text-align: left;
+      margin-bottom: 8px;
+    }
+    .ship-card button {
+      width: 100%;
+    }
+
+    /* 업그레이드 UI */
+    #upgradeSection {
+      margin-top: 16px;
+      width: 100%;
+      max-width: 600px;
+      background: rgba(0,0,0,0.5);
+      padding: 12px;
+      box-sizing: border-box;
+    }
+    #upgradeSection h2 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+    .upgrade-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 4px 0;
+      font-size: 14px;
+    }
+    .upgrade-row span {
+      margin-right: 8px;
+    }
+    .upgrade-row button {
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+    #upgradeMsg {
+      margin-top: 8px;
+      font-size: 13px;
+      min-height: 18px;
+      color: #ffdd88;
+    }
+  </style>
+</head>
+<body>
+  <div id="gameContainer">
+    <canvas id="myCanvas" width="1024" height="768">
+      Your browser does not support the HTML5 canvas tag.
+    </canvas>
+
+    <!-- 메인 메뉴 화면 -->
+    <div id="mainMenu" class="screen-overlay">
+      <h1>SPACE GAME</h1>
+      <h2>레트로 우주 슈팅 게임</h2>
+      <p>GOLD: <span id="goldMain">0</span></p>
+      <button id="startBtn" disabled>START</button>
+      <button id="shopBtn" disabled>SHIP SELECT / SHOP</button>
+      <small id="loadingText">이미지 로딩 중입니다...</small>
+    </div>
+
+    <!-- 모드 선택 화면 -->
+    <div id="modeScreen" class="screen-overlay" style="display: none;">
+      <h1>SELECT MODE</h1>
+      <button id="modeStageBtn">STAGE MODE (보스 등장)</button>
+      <button id="modeEndlessBtn">ENDLESS MODE (무한)</button>
+      <button id="modeBackBtn">BACK</button>
+    </div>
+
+    <!-- 난이도 선택 화면 -->
+    <div id="difficultyScreen" class="screen-overlay" style="display: none;">
+      <h1>SELECT DIFFICULTY</h1>
+      <div class="difficulty-buttons">
+        <button id="easyBtn">EASY</button>
+        <button id="normalBtn">NORMAL</button>
+        <button id="hardBtn">HARD</button>
+      </div>
+      <button id="backToMenuBtn">BACK</button>
+    </div>
+
+    <!-- 기체 선택 + 상점 화면 -->
+    <div id="shipScreen" class="screen-overlay" style="display: none;">
+      <h1>SHIP SELECT / SHOP</h1>
+      <p>사용할 메인 기체를 선택하세요</p>
+      <p>현재 GOLD: <span id="goldShop">0</span></p>
+      <div class="ship-list">
+        <!-- 기본형 -->
+        <div class="ship-card" id="ship-basic" data-type="basic">
+          <div class="ship-preview">
+            <img src="assets/기체1.png" alt="기체1 기본형" />
+          </div>
+          <div class="ship-name">기본형 (BALANCED)</div>
+          <div class="ship-stats">
+            이동속도: ★★★☆☆<br/>
+            공격: 단발 기본 샷<br/>
+            설명: 전반적으로 균형 잡힌 기체
+          </div>
+          <button class="select-ship-btn" data-type="basic">이 기체 선택</button>
+        </div>
+
+        <!-- 속도형 -->
+        <div class="ship-card" id="ship-speed" data-type="speed">
+          <div class="ship-preview">
+            <img src="assets/기체2.png" alt="기체2 속도형" />
+          </div>
+          <div class="ship-name">속도형 (SPEED)</div>
+          <div class="ship-stats">
+            이동속도: ★★★★★<br/>
+            공격: 빠른 단발 샷<br/>
+            설명: 회피에 특화, 공격은 가볍게
+          </div>
+          <button class="select-ship-btn" data-type="speed">이 기체 선택</button>
+        </div>
+
+        <!-- 확산형 -->
+        <div class="ship-card" id="ship-spread" data-type="spread">
+          <div class="ship-preview">
+            <img src="assets/기체3.png" alt="기체3 확산형" />
+          </div>
+          <div class="ship-name">확산형 (SPREAD)</div>
+          <div class="ship-stats">
+            이동속도: ★★☆☆☆<br/>
+            공격: 3-Way 확산 샷<br/>
+            설명: 느리지만 한 번에 넓게 공격
+          </div>
+          <button class="select-ship-btn" data-type="spread">이 기체 선택</button>
+        </div>
+      </div>
+
+      <!-- 업그레이드 섹션 -->
+      <div id="upgradeSection">
+        <h2>UPGRADES</h2>
+        <div class="upgrade-row">
+          <span>이동속도 Lv.<span id="upMoveLevel">0</span></span>
+          <button id="upMoveBtn">업그레이드</button>
+        </div>
+        <div class="upgrade-row">
+          <span>공격 연사속도 Lv.<span id="upFireLevel">0</span></span>
+          <button id="upFireBtn">업그레이드</button>
+        </div>
+        <div class="upgrade-row">
+          <span>공격력 Lv.<span id="upAttackLevel">0</span></span>
+          <button id="upAttackBtn">업그레이드</button>
+        </div>
+        <p id="upgradeMsg"></p>
+      </div>
+
+      <button id="shipBackBtn">BACK</button>
+    </div>
+
+    <!-- GAME OVER / WIN 화면 -->
+    <div id="gameOverScreen" class="screen-overlay" style="display: none;">
+      <h1 id="gameOverTitle">GAME OVER</h1>
+      <p id="finalInfo"></p>
+      <p id="rewardInfo"></p>
+      <button id="restartBtn">RESTART</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
